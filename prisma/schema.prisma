@@ -9,3 +9,44 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model admin {
+  id         Int      @id @default(autoincrement())
+  email      String
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model content {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model services {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  price       String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model contact {
+  id         Int      @id @default(autoincrement())
+  email      String
+  subject    String
+  message    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model social {
+  id         Int      @id @default(autoincrement())
+  socialurl  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
