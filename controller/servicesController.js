@@ -11,7 +11,7 @@ servicesController.create = async (req, res) => {
       throw new Error("Please enter all fields");
     }
 
-    const newService = await prisma.contact.create({
+    const newService = await prisma.services.create({
       data: {
         title,
         description,
@@ -33,44 +33,82 @@ servicesController.create = async (req, res) => {
   }
 };
 
+// servicesController.update = async (req, res) => {
+//   const id = parseInt(req.params.id);
+
+//   try {
+//     const service = await prisma.services.findFirst({
+//       where: {
+//         id,
+//       },
+//     });
+
+//     if (!service) {
+//       res.status(404).json({
+//         status: 404,
+//         message: "Service not found",
+//       });
+//       return;
+//     }
+
+//     const updatedService = await prisma.services.update({
+//       where: {
+//         id,
+//       },
+//       data: {
+//         title: title || service.title,
+//         description: description || service.description,
+//         price: price || service.price,
+//       },
+//     });
+
+//     res.status(200).json({
+//       status: 200,
+//       message: "Service updated successfully",
+//       updatedService,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       status: 500,
+//       message: error.message || "Internal server error!",
+//     });
+//   }
+// };
+
 servicesController.update = async (req, res) => {
-  const { id, title, description, price } = req.body;
+  const id = parseInt(req.params.id);
+  const { title, description, price } = req.body; // Destructure variables from req.body
 
   try {
-    if (!title || !description || !price) {
-      throw new Error(
-        "Please provide all fields (id, title, description, price) for update"
-      );
-    }
-
-    const existingService = await prisma.services.findFirst({
+    const service = await prisma.services.findFirst({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
 
-    if (!existingService) {
+    if (!service) {
       return res.status(404).json({
         status: 404,
-        message: "Service not found!",
+        message: "Service not found",
       });
     }
 
     const updatedService = await prisma.services.update({
       where: {
-        id: parseInt(id),
+        id,
       },
       data: {
-        title,
-        description,
-        price,
+        title: title || service.title,
+        description: description || service.description,
+        price: price || service.price,
       },
     });
 
     res.status(200).json({
       status: 200,
-      message: "Service updated successfully!",
-      service: updatedService,
+      message: "Service updated successfully",
+      updatedService,
     });
   } catch (error) {
     console.error(error);
@@ -81,6 +119,112 @@ servicesController.update = async (req, res) => {
   }
 };
 
-module.exports = servicesController;
+servicesController.updatePrice = async (req, res) => {
+  const { id } = req.params; // Assuming 'id' is passed in the request params
+  const { price } = req.body;
+
+  try {
+    const service = await prisma.services.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!service) {
+      res.status(404).json({
+        status: 404,
+        message: "Service not found",
+      });
+      return;
+    }
+
+    const updatedService = await prisma.services.update({
+      where: {
+        id,
+      },
+      data: {
+        price: price || service.price,
+      },
+    });
+
+    res.status(200).json({
+      status: 200,
+      message: "Price updated successfully",
+      updatedService,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};
+
+servicesController.getAllServices = async (req, res) => {
+  try {
+    const services = await prisma.services.findMany(); // Fetch all admins
+
+    if (!services || services.length === 0) {
+      return res.status(404).json({ error: "No services found" });
+    }
+
+    res.status(200).json({ services });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+servicesController.deleteAllServices = async (req, res) => {
+  try {
+    const services = await prisma.services.deleteMany(); // Fetch all admins
+
+    if (!services || services.length === 0) {
+      return res.status(404).json({ error: "No services found" });
+    }
+
+    res.status(200).json({ services });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+servicesController.deleteById = async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const service = await prisma.services.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!service) {
+      return res.status(404).json({
+        status: 404,
+        message: "Service not found",
+      });
+    }
+
+    await prisma.services.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    res.status(200).json({
+      status: 200,
+      message: "Service deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};
 
 module.exports = servicesController;

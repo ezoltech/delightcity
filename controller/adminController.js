@@ -114,9 +114,9 @@ adminController.logIn = async (req, res) => {
 };
 
 adminController.updateAdmin = async (req, res) => {
-  const { email, password } = req.body;
+  const { email } = req.body;
 
-  if (!email || !password) {
+  if (!email) {
     return res.status(401).send({
       status: 401,
       message: "Please enter all fields!!",
@@ -140,7 +140,7 @@ adminController.updateAdmin = async (req, res) => {
     let salt = await bcrypt.genSalt(10);
     let pwd = await bcrypt.hash(password, salt);
 
-    const updatedAdmin = await prisma.admin.update({
+    const updatedAdmin = await prisma.admin.update.password({
       where: {
         email,
       },
@@ -163,8 +163,8 @@ adminController.updateAdmin = async (req, res) => {
   }
 };
 
-adminController.deleteAdmin = async (req, res) => {
-  const id = parseInt(req.body.id);
+adminController.deleteAdminById = async (req, res) => {
+  const id = parseInt(req.params.id);
 
   try {
     if (isNaN(id)) {
@@ -191,17 +191,17 @@ adminController.deleteAdmin = async (req, res) => {
   }
 };
 
-adminController.getAdminByEmail = async (req, res) => {
-  const { email } = req.body.email;
+adminController.getAdminById = async (req, res) => {
+  const id = parseInt(req.params.id);
 
-  if (!email) {
-    return res.status(400).json({ error: "Email is required" });
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "id is required" });
   }
 
   try {
     const admin = await prisma.admin.findFirst({
       where: {
-        email,
+        id,
       },
     });
 
@@ -216,6 +216,53 @@ adminController.getAdminByEmail = async (req, res) => {
   }
 };
 
-module.exports = adminController;
+adminController.getAllAdmins = async (req, res) => {
+  try {
+    const admins = await prisma.admin.findMany(); // Fetch all admins
+
+    if (!admins || admins.length === 0) {
+      return res.status(404).json({ error: "No admins found" });
+    }
+
+    res.status(200).json({ admins });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+adminController.deleAllAdmins = async (req, res) => {
+  try {
+    const admins = await prisma.admin.deleteMany(); // Fetch all admins
+
+    if (!admins || admins.length === 0) {
+      return res.status(404).json({ error: "No admins found" });
+    }
+
+    res.status(200).json({ admins });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+adminController.miniData = async(req, res) => {
+  try {
+    const adminData = await prisma.admin.findFirst({
+      select: {
+        email: true,
+        created_at: true
+      }
+    });
+
+    if (!adminData) {
+      return res.status(404).json({ error: 'Admin data not found' });
+    }
+
+    res.json(adminData);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 module.exports = adminController;

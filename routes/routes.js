@@ -1,6 +1,9 @@
 const express = require("express");
 const contactController = require("../controller/contactController");
 const adminController = require("../controller/adminController");
+const servicesController = require("../controller/servicesController");
+const contentController = require("../controller/contentController");
+const galleryController = require("../controller/galleryController");
 const router = express.Router();
 
 router.post("/contact/create", contactController.create);
@@ -9,7 +12,22 @@ router.get("/contact/request", contactController.getContactById);
 router.post("/admin/create", adminController.signUp);
 router.post("/admin/login", adminController.logIn);
 router.put("/admin/update", adminController.updateAdmin);
-router.get("/admin/getemail", adminController.getAdminByEmail);
-router.delete("/admin/delete", adminController.deleteAdmin); // Route for deleting admin
+router.get("/admin/getadmin/:id", adminController.getAdminById);
+router.delete("/admin/delete/:id", adminController.deleteAdminById);
+router.delete("/admin/clear", adminController.deleAllAdmins);
+router.delete("/contact/clear", contactController.deleAllContacts);
+router.get("/admin/alladmins", adminController.getAllAdmins);
+router.get("/admin/general", adminController.miniData);
+router.get("/contact/allcontacts", contactController.getAllContacts);
+router.post("/services/create", servicesController.create);
+router.get("/services/allservices", servicesController.getAllServices);
+router.delete("/services/deleteall", servicesController.deleteAllServices);
+router.delete("/services/delete/:id", servicesController.deleteById);
+router.put("/services/update/:id", servicesController.update);
+router.post("/contents/create", contentController.create);
+router.delete("/contents/delete", contentController.deleteContent);
+router.get("/contents/lists", contentController.getContenttById);
+router.get("/contents/get-three", contentController.getContentLastThree);
+router.post("/photo/create", galleryController.AddPhoto);
 
 module.exports = router;

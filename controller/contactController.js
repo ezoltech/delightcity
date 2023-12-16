@@ -91,4 +91,36 @@ contactController.getContactById = async (req, res) => {
   }
 };
 
+contactController.getAllContacts = async (req, res) => {
+  try {
+    const contacts = await prisma.contact.findMany(); // Fetch all admins
+
+    if (!contacts || contacts.length === 0) {
+      return res.status(404).json({ error: "No contacts found" });
+    }
+
+    res.status(200).json({ contacts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+contactController.deleAllContacts = async (req, res) => {
+  try {
+    const contacts = await prisma.contact.deleteMany(); // Fetch all admins
+
+    if (!contacts || contacts.length === 0) {
+      return res.status(404).json({ error: "No admins found" });
+    }
+
+    res.status(200).json({ contacts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
 module.exports = contactController;

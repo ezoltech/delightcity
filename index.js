@@ -1,6 +1,8 @@
 const express = require("express");
+const cors = require("cors");
 const http = require("http");
 const { PrismaClient } = require("@prisma/client");
+
 const PORT = process.env.PORT || 3000;
 require("dotenv").config();
 
@@ -11,13 +13,16 @@ const content = require("./controller/contentController");
 
 const app = express();
 const prisma = new PrismaClient();
-
+const corsOptions = {
+  origin: ["http://localhost:5173"],
+};
+app.use(cors(corsOptions));
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 const routes = require("./routes/routes");
 
 app.use("/api/v1", routes);
-
+app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
   res.json({
     status: "running...",

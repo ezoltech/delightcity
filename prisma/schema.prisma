@@ -23,6 +23,7 @@ model content {
   title       String
   description String
   photo       String
+  place       String
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }
@@ -45,9 +46,9 @@ model contact {
   updated_at DateTime @updatedAt
 }
 
-model social {
+model gallery {
   id         Int      @id @default(autoincrement())
-  socialurl  String
+  photo      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
