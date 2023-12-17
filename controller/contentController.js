@@ -17,8 +17,9 @@ const storage = multer.diskStorage({
 // Initialize Multer
 const upload = multer({
   storage: storage,
-}).single("photo"); // 'myFile' should match the name attribute in your HTML form
+}).single("photo");
 const uploadAsync = promisify(upload);
+
 contentController.create = async (req, res) => {
   console.log("body:" + JSON.stringify(req.body));
 
@@ -59,20 +60,32 @@ contentController.create = async (req, res) => {
   }
 };
 
-contentController.deleteContent = async (req, res) => {
-  const id = parseInt(req.body.id);
+contentController.deleteContentById = async (req, res) => {
+  const id = parseInt(req.params.id);
 
   try {
     if (isNaN(id)) {
       throw new Error("Please provide a valid ID!");
     }
 
-    const deleteContent = await prisma.content.delete({
+    const deleteContent = await prisma.content.findFirst({
       where: {
-        id,
+        id: id,
       },
     });
 
+    if (!deleteContent) {
+      return res.status(404).json({
+        status: 404,
+        message: "content not found",
+      });
+    }
+
+    await prisma.content.delete({
+      where: {
+        id: id,
+      },
+    });
     res.status(200).json({
       status: 200,
       message: "content deleted successfully!",
@@ -147,6 +160,9 @@ contentController.getContentLastThree = async (req, res) => {
     });
   }
 };
+
+
+
 contentController.updatePrice = async (req, res) => {
   const { price } = req.body.price;
 
@@ -161,6 +177,100 @@ contentController.updatePrice = async (req, res) => {
       status: 200,
       message: "Price updated successfully!",
       content: updatedContent,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};
+
+contentController.updateContentById = async (req, res) => {
+  const contentId = Number(req.params.id); // Assuming the contact ID is passed as a route parameter
+  const { title, description, place } = req.body;
+
+  try {
+    if (!title && !description && !place) {
+      return res.status(400).json({
+        status: 400,
+        message: "Please provide data to update",
+      });
+    }
+
+    let fileUrl = ""; // Assuming you might update the photo, leave it empty if not updating
+
+    // Check if file upload exists in the request and upload it if necessary
+    if (req.file) {
+      await uploadAsync(req, res);
+      fileUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const existingContent = await prisma.content.findUnique({
+      where: {
+        id: contentId,
+      },
+    });
+
+    if (!existingContent) {
+      return res.status(404).json({
+        status: 404,
+        message: "Content not found",
+      });
+    }
+
+    const updatedContent = await prisma.content.update({
+      where: {
+        id: contentId,
+      },
+      data: {
+        title: title || existingContent.title,
+        description: description || existingContent.description,
+        place: place || existingContent.place,
+        photo: fileUrl || existingContent.photo,
+      },
+    });
+
+    res.status(200).json({
+      status: 200,
+      message: "Content updated successfully!",
+      content: updatedContent,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};
+
+contentController.getAllContents = async (req, res) => {
+  try {
+    const allContents = await prisma.content.findMany();
+
+    res.status(200).json({
+      status: 200,
+      message: "All contents retrieved successfully!",
+      contents: allContents,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};
+
+contentController.deleteAllContents = async (req, res) => {
+  try {
+    await prisma.content.deleteMany();
+
+    res.status(200).json({
+      status: 200,
+      message: "All contents deleted successfully!",
     });
   } catch (error) {
     console.error(error);

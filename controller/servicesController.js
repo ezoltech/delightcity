@@ -4,17 +4,19 @@ const prisma = new PrismaClient();
 const servicesController = {};
 
 servicesController.create = async (req, res) => {
-  const { title, description, price } = req.body;
+  const { title, includes, places, duration, price } = req.body;
 
   try {
-    if (!title || !description || !price) {
+    if (!title || !includes || !places || !duration || !price) {
       throw new Error("Please enter all fields");
     }
 
     const newService = await prisma.services.create({
       data: {
         title,
-        description,
+        includes,
+        places,
+        duration,
         price,
       },
     });
@@ -78,7 +80,7 @@ servicesController.create = async (req, res) => {
 
 servicesController.update = async (req, res) => {
   const id = parseInt(req.params.id);
-  const { title, description, price } = req.body; // Destructure variables from req.body
+  const { title, includes, places, duration, price } = req.body; // Destructure variables from req.body
 
   try {
     const service = await prisma.services.findFirst({
@@ -100,7 +102,9 @@ servicesController.update = async (req, res) => {
       },
       data: {
         title: title || service.title,
-        description: description || service.description,
+        includes: includes || service.includes,
+        places: places || service.places,
+        duration: duration || service.duration,
         price: price || service.price,
       },
     });
@@ -195,7 +199,7 @@ servicesController.deleteById = async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
-    const service = await prisma.services.findUnique({
+    const service = await prisma.services.findFirst({
       where: {
         id: id,
       },

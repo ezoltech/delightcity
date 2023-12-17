@@ -14,7 +14,7 @@ const content = require("./controller/contentController");
 const app = express();
 const prisma = new PrismaClient();
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173", "http://localhost:5174"],
 };
 app.use(cors(corsOptions));
 app.use(express.json());

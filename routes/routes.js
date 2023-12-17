@@ -24,10 +24,18 @@ router.get("/services/allservices", servicesController.getAllServices);
 router.delete("/services/deleteall", servicesController.deleteAllServices);
 router.delete("/services/delete/:id", servicesController.deleteById);
 router.put("/services/update/:id", servicesController.update);
-router.post("/contents/create", contentController.create);
-router.delete("/contents/delete", contentController.deleteContent);
-router.get("/contents/lists", contentController.getContenttById);
-router.get("/contents/get-three", contentController.getContentLastThree);
-router.post("/photo/create", galleryController.AddPhoto);
 
+router.post("/contents/create", contentController.create);
+router.put("/contents/update/:id", contentController.updateContentById);
+router.delete("/contents/delete/:id", contentController.deleteContentById);
+router.delete("/contents/deleteall", contentController.deleteAllContents);
+// router.get("/contents/lists", contentController.getContenttById);
+router.get("/contents/get-three", contentController.getContentLastThree);
+router.get("/contents/all", contentController.getAllContents);
+
+router.post("/photo/create", galleryController.addPhoto);
+router.get("/photo/getall", galleryController.getAllPhotos);
+router.delete("/photo/delete/:id", galleryController.deletePhotoById);
+router.put("/photo/update/:id", galleryController.updatePhotoById);
+router.get("/photo/deleteall", galleryController.deleteAllPhotos);
 module.exports = router;

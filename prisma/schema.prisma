@@ -29,12 +29,14 @@ model content {
 }
 
 model services {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  price       String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  title      String
+  includes   String
+  places     String
+  duration   String
+  price      String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model contact {
