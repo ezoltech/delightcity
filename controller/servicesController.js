@@ -168,7 +168,6 @@ servicesController.updatePrice = async (req, res) => {
 servicesController.getAllServices = async (req, res) => {
   try {
     const services = await prisma.services.findMany(); // Fetch all admins
-
     if (!services || services.length === 0) {
       return res.status(404).json({ error: "No services found" });
     }

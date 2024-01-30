@@ -21,7 +21,7 @@ model admin {
 model content {
   id          Int      @id @default(autoincrement())
   title       String
-  description String
+  description String   @db.Text
   photo       String
   place       String
   created_at  DateTime @default(now())
@@ -54,3 +54,46 @@ model gallery {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
+model carousel {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  photo       String
+  place       String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Gold {
+  id          Int        @id @default(autoincrement())
+  title       String
+  includes    String
+  places      String
+  prices      String
+  durations   Duration[] // Link to different durations
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+}
+
+model Platinum {
+  id          Int        @id @default(autoincrement())
+  title       String
+  includes    String
+  places      String
+  prices      String
+  durations   Duration[] // Link to different durations
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+}
+
+model Duration {
+  id            Int       @id @default(autoincrement())
+  days          Int       // Duration in days (1, 2, 3)
+  gold          Gold?     @relation(fields: [goldId], references: [id])
+  goldId        Int?      // Foreign key field for Gold
+  platinum      Platinum? @relation(fields: [platinumId], references: [id])
+  platinumId    Int?      // Foreign key field for Platinum
+}
+
+

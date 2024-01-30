@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const { promisify } = require("util");
 const prisma = new PrismaClient();
-const contentController = {};
+const carouselController = {};
 
 const storage = multer.diskStorage({
   destination: "./uploads/",
@@ -20,13 +20,13 @@ const upload = multer({
 }).single("photo");
 const uploadAsync = promisify(upload);
 
-contentController.create = async (req, res) => {
+carouselController.create = async (req, res) => {
   console.log("body:" + JSON.stringify(req.body));
 
   try {
     let fileUrl = "/uploads/no-image.png";
-    const count = await prisma.content.count();
-    if (count >= 4) {
+    const count = await prisma.carousel.count();
+    if (count >= 2) {
       return res.status(500).json({
         status: 500,
         message: "limit exceded",
@@ -37,19 +37,19 @@ contentController.create = async (req, res) => {
     const { title, description, place } = req.body;
     console.log(req.body);
     fileUrl = `/uploads/${req.file.filename}`;
-    const newContent = await prisma.content.create({
+    const newCarousel = await prisma.content.create({
       data: {
         title: title || "untitled",
-        description: description || "no content",
-        place: place || "top",
+        description: description || "no carousel",
+        place: place || "no place",
         photo: fileUrl,
       },
     });
 
     res.status(201).json({
       status: 201,
-      message: "Content created successfully!",
-      contact: newContent,
+      message: "carousel",
+      carousel: newCarousel,
     });
   } catch (error) {
     console.error(error);
@@ -60,7 +60,7 @@ contentController.create = async (req, res) => {
   }
 };
 
-contentController.deleteContentById = async (req, res) => {
+carouselController.deleteCArouselById = async (req, res) => {
   const id = parseInt(req.params.id);
 
   try {
@@ -68,16 +68,16 @@ contentController.deleteContentById = async (req, res) => {
       throw new Error("Please provide a valid ID!");
     }
 
-    const deleteContent = await prisma.content.findFirst({
+    const deleteCarousel = await prisma.carousel.findFirst({
       where: {
         id: id,
       },
     });
 
-    if (!deleteContent) {
+    if (!deleteCarousel) {
       return res.status(404).json({
         status: 404,
-        message: "content not found",
+        message: "carousel element  not found",
       });
     }
 
@@ -88,8 +88,8 @@ contentController.deleteContentById = async (req, res) => {
     });
     res.status(200).json({
       status: 200,
-      message: "content deleted successfully!",
-      deleteContent: deleteContent,
+      message: "carousel deleted successfully!",
+      deleteCarousel: deleteCarousel,
     });
   } catch (error) {
     console.error(error);
@@ -100,26 +100,26 @@ contentController.deleteContentById = async (req, res) => {
   }
 };
 
-contentController.getContenttById = async (req, res) => {
-  const contentId = Number(req.body.id); // Assuming the contact ID is passed as a route parameter
+carouselController.getCarouselById = async (req, res) => {
+  const carouselId = Number(req.body.id); // Assuming the contact ID is passed as a route parameter
 
   try {
-    const content = await prisma.content.findFirst({
+    const carousel = await prisma.carousel.findFirst({
       where: {
-        id: contentId,
+        id: carouselId,
       },
     });
 
-    if (!content) {
+    if (!carousel) {
       return res.status(404).json({
         status: 404,
-        message: "Content not found",
+        message: "carousel not found",
       });
     }
 
     res.status(200).json({
       status: 200,
-      message: "Content retrieved successfully",
+      message: "Carousel retrieved successfully",
       contact: content,
     });
   } catch (error) {
@@ -131,62 +131,8 @@ contentController.getContenttById = async (req, res) => {
   }
 };
 
-contentController.getContentLastTwo = async (req, res) => {
-  try {
-    const content = await prisma.content.findMany({
-      take: 2,
-      orderBy: {
-        created_at: "desc",
-      },
-    });
-
-    if (!content) {
-      return res.status(404).json({
-        status: 404,
-        message: "Contents not found",
-      });
-    }
-
-    res.status(200).json({
-      status: 200,
-      message: "Content retrieved successfully",
-      content: content,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      message: error.message || "Internal server error",
-    });
-  }
-};
-
-contentController.updatePrice = async (req, res) => {
-  const { price } = req.body.price;
-
-  try {
-    const updatedContent = await prisma.content.update({
-      data: {
-        price,
-      },
-    });
-
-    res.status(200).json({
-      status: 200,
-      message: "Price updated successfully!",
-      content: updatedContent,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      message: error.message || "Internal server error!",
-    });
-  }
-};
-
-contentController.updateContentById = async (req, res) => {
-  const contentId = Number(req.params.id); // Assuming the contact ID is passed as a route parameter
+carouselController.updateCarouselById = async (req, res) => {
+  const carouselId = Number(req.params.id); // Assuming the contact ID is passed as a route parameter
   const { title, description, place } = req.body;
 
   try {
@@ -205,35 +151,34 @@ contentController.updateContentById = async (req, res) => {
       fileUrl = `/uploads/${req.file.filename}`;
     }
 
-    const existingContent = await prisma.content.findUnique({
+    const existingCarousel = await prisma.carousel.findFirst({
       where: {
-        id: contentId,
+        id: carouselId,
       },
     });
 
-    if (!existingContent) {
+    if (!existingCarousel) {
       return res.status(404).json({
         status: 404,
-        message: "Content not found",
+        message: "carousel not found",
       });
     }
 
-    const updatedContent = await prisma.content.update({
+    const updatedCarousel = await prisma.carousel.update({
       where: {
-        id: contentId,
+        id: carouselId,
       },
       data: {
-        title: title || existingContent.title,
-        description: description || existingContent.description,
-        place: place || existingContent.place,
-        photo: fileUrl || existingContent.photo,
+        title: title || existingCarousel.title,
+        description: description || existingCarousel.description,
+        photo: fileUrl || existingCarousel.photo,
       },
     });
 
     res.status(200).json({
       status: 200,
-      message: "Content updated successfully!",
-      content: updatedContent,
+      message: "Carousel updated successfully!",
+      content: updatedCarousel,
     });
   } catch (error) {
     console.error(error);
@@ -244,14 +189,14 @@ contentController.updateContentById = async (req, res) => {
   }
 };
 
-contentController.getAllContents = async (req, res) => {
+carouselController.getAllCarousels = async (req, res) => {
   try {
-    const allContents = await prisma.content.findMany();
+    const allCarousels = await prisma.carousel.findMany();
 
     res.status(200).json({
       status: 200,
-      message: "All contents retrieved successfully!",
-      contents: allContents,
+      message: "All carousels retrieved successfully!",
+      contents: allCarousels,
     });
   } catch (error) {
     console.error(error);
@@ -262,20 +207,37 @@ contentController.getAllContents = async (req, res) => {
   }
 };
 
-contentController.getContentDataByPlace = async (req, res) => {
+carouselController.deleteAllCarousels = async (req, res) => {
+  try {
+    await prisma.carousel.deleteMany();
+
+    res.status(200).json({
+      status: 200,
+      message: "All carousels deleted successfully!",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: error.message || "Internal server error!",
+    });
+  }
+};
+
+carouselController.getCarouselDataByPlace = async (req, res) => {
   const { place } = req.params;
 
   try {
-    const contents = await prisma.content.findMany({
+    const carousel = await prisma.carousel.findMany({
       where: {
-        place: place || "top", // Default to "top" if place is not provided
+        place: place || "first", // Default to "top" if place is not provided
       },
     });
 
     res.status(200).json({
       status: 200,
-      message: `Contents retrieved successfully for place: ${place}`,
-      contents: contents,
+      message: `Carousel retrieved successfully for place: ${place}`,
+      carousel: carousel,
     });
   } catch (error) {
     console.error(error);
@@ -286,21 +248,4 @@ contentController.getContentDataByPlace = async (req, res) => {
   }
 };
 
-contentController.deleteAllContents = async (req, res) => {
-  try {
-    await prisma.content.deleteMany();
-
-    res.status(200).json({
-      status: 200,
-      message: "All contents deleted successfully!",
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      status: 500,
-      message: error.message || "Internal server error!",
-    });
-  }
-};
-
-module.exports = contentController;
+module.exports = carouselController;

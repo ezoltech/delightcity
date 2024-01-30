@@ -68,7 +68,7 @@ galleryController.updatePhotoById = async (req, res) => {
   const fileUrl = `/uploads/${req.file.filename}`;
 
   try {
-    const existingPhoto = await prisma.gallery.findUnique({
+    const existingPhoto = await prisma.gallery.findFirst({
       where: {
         id: parseInt(id),
       },
