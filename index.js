@@ -18,6 +18,7 @@ const corsOptions = {
     "http://localhost:5173",
     "http://localhost:5174",
     "https://delighttourandtravel.com",
+    "https://delight-admin.netlify.app",
   ],
 };
 app.use(cors(corsOptions));
