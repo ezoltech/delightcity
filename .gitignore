@@ -5,3 +5,4 @@ uploads/*
 !uploads/
 20231222195302_
 migration_lock.toml
+utils

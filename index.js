@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const http = require("http");
 const { PrismaClient } = require("@prisma/client");
-
+const corsOptions = require("./utils/utils");
 const PORT = process.env.PORT || 3000;
 require("dotenv").config();
 
@@ -13,14 +13,7 @@ const content = require("./controller/contentController");
 
 const app = express();
 const prisma = new PrismaClient();
-const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "https://delighttourandtravel.com",
-    "https://delight-admin.netlify.app",
-  ],
-};
+
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
